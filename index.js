@@ -29,10 +29,13 @@ class Init extends Opstream {
     const isPath = link[0] === '.' || link[0] === '/' || link[1] === ':' || link.startsWith('\\')
     const isName = !isPear && !isFile && !isPath
     if (isName) {
-      if (link === 'default') link = 'pear://templates/terminal/init'
+      if (link === 'default') link = 'pear://templates/terminal/default'
       else if (link === 'ui') link = 'pear://templates/desktop/electron'
       else if (link === 'node-compat') link = 'pear://templates/terminal/compat'
-      else return init('./' + link, dir, opts)
+      else if (link[0] !== '.') {
+        const stream = new Init({ ...opts, link: './' + link })
+        return pipelinePromise(stream, this)
+      } else throw ERR_INVALID_TEMPLATE('Invalid template link', { link })
     }
     if (link.startsWith('pear://templates')) ask = false
 
