@@ -29,7 +29,7 @@
     "pear-link": "^4.2.1",
     "pear-opstream": "^1.0.0",
     "pear-stamp": "^1.0.2",
-    "pear-terminal": "^1.0.1",
+    "pear-terminal": "^2.0.0-rc.0",
     "streamx": "^2.23.0",
     "url-file-url": "^1.0.5"
   }
