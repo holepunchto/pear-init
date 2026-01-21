@@ -2,7 +2,6 @@
 const { pipelinePromise } = require('streamx')
 const { pathToFileURL } = require('url-file-url')
 const Localdrive = require('localdrive')
-const Realm = require('bare-realm')
 const { Interact } = require('pear-terminal')
 const Opstream = require('pear-opstream')
 const stamp = require('pear-stamp')
@@ -255,9 +254,6 @@ class Init extends Opstream {
           defaults[prompt.name] = Array.isArray(prompt.override)
             ? prompt.override.reduce((o, k) => o?.[k], pkg)
             : (prompt.default ?? defaults[prompt.name])
-          if (typeof prompt.validation !== 'string') continue
-          const realm = new Realm()
-          prompt.validation = realm.evaluate(prompt.validation)
         }
       } catch (e) {
         params = null
