@@ -8,7 +8,7 @@ const Opstream = require('pear-opstream')
 const stamp = require('pear-stamp')
 const dump = require('pear-dump')
 const plink = require('pear-link')
-const isTextFile = require('is-text-file')
+const isTextFile = require('is-text-filetype')
 const {
   ERR_PERMISSION_REQUIRED,
   ERR_OPERATION_FAILED,
