@@ -8,6 +8,7 @@ const Opstream = require('pear-opstream')
 const stamp = require('pear-stamp')
 const dump = require('pear-dump')
 const plink = require('pear-link')
+const isTextFile = require('is-text-filetype')
 const {
   ERR_PERMISSION_REQUIRED,
   ERR_OPERATION_FAILED,
@@ -104,8 +105,12 @@ class Init extends Opstream {
       if (key === '/_template.json') continue
       if (value === null) continue // dir
       const file = stamp.sync(key, fields)
+      const fileStream = isTextFile(file) ? stamp.stream(value, fields, shave) : Readable.from([value])
       const writeStream = dst.createWriteStream(file)
-      const promise = pipelinePromise(stamp.stream(value, fields, shave), writeStream)
+      const promise = pipelinePromise(
+        fileStream,
+        writeStream
+      )
       promise.catch((err) => {
         this.push({ tag: 'error', data: err })
       })
