@@ -105,10 +105,10 @@ class Init extends Opstream {
       if (key === '/_template.json') continue
       if (value === null) continue // dir
       const file = stamp.sync(key, fields)
-      const fileData = isTextFile(file) ? stamp.stream(value, fields, shave) : Readable.from([value])
+      const fileStream = isTextFile(file) ? stamp.stream(value, fields, shave) : Readable.from([value])
       const writeStream = dst.createWriteStream(file)
       const promise = pipelinePromise(
-        fileData,
+        fileStream,
         writeStream
       )
       promise.catch((err) => {
