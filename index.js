@@ -1,5 +1,5 @@
 'use strict'
-const { pipelinePromise } = require('streamx')
+const { Readable, pipelinePromise } = require('streamx')
 const { pathToFileURL } = require('url-file-url')
 const Localdrive = require('localdrive')
 const Realm = require('bare-realm')
@@ -105,12 +105,11 @@ class Init extends Opstream {
       if (key === '/_template.json') continue
       if (value === null) continue // dir
       const file = stamp.sync(key, fields)
-      const fileStream = isTextFile(file) ? stamp.stream(value, fields, shave) : Readable.from([value])
+      const fileStream = isTextFile(file)
+        ? stamp.stream(value, fields, shave)
+        : Readable.from([value])
       const writeStream = dst.createWriteStream(file)
-      const promise = pipelinePromise(
-        fileStream,
-        writeStream
-      )
+      const promise = pipelinePromise(fileStream, writeStream)
       promise.catch((err) => {
         this.push({ tag: 'error', data: err })
       })
