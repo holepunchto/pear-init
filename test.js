@@ -57,7 +57,13 @@ test('init merges json and stamps files', async (t) => {
     header: ''
   })
 
-  stream._interact = async function* () {
+  stream._interact = async function* (link, prompt) {
+    if (prompt?._rl) {
+      // Interact keeps readline open until prompt.run finishes; close to avoid hanging tests.
+      prompt._rl.close?.()
+      prompt._rl.input?.destroy?.()
+      prompt._rl.output?.end?.()
+    }
     yield [this.root, { fields: { name: 'Pear' } }]
   }
 
