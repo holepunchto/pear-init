@@ -152,14 +152,14 @@ class Init extends Opstream {
         const rel = answer.startsWith('/') ? answer.slice(1) : answer
         const frame = stack[stack.length - 1]
         frame.template = new URL(rel, base).href
-        if (frame.prefixTrail == null) frame.prefixTrail = trail
+        if (frame.prefixTrail === null) frame.prefixTrail = trail
         continue
       }
 
       if (tag === 'enter' && typeof answer === 'string' && answer.startsWith('/')) {
         const parent = stack[stack.length - 1]
-        if (parent.template == null) parent.template = parent.link
-        if (parent.prefixTrail == null) parent.prefixTrail = trail.slice(0, -1) // parent scope
+        if (parent.template === null) parent.template = parent.link
+        if (parent.prefixTrail === null) parent.prefixTrail = trail.slice(0, -1) // parent scope
         parent.fields = parent.fields ?? {}
 
         if (!seen.has(parent.template)) {
@@ -170,8 +170,8 @@ class Init extends Opstream {
 
       if (tag === 'input') {
         const frame = stack[stack.length - 1]
-        if (frame.template == null) frame.template = frame.link
-        if (frame.prefixTrail == null) frame.prefixTrail = trail.slice(0, -1)
+        if (frame.template === null) frame.template = frame.link
+        if (frame.prefixTrail === null) frame.prefixTrail = trail.slice(0, -1)
         frame.fields = frame.fields ?? {}
 
         const prefix = frame.prefixTrail || []
@@ -205,7 +205,7 @@ class Init extends Opstream {
       if (tag === 'exit') {
         const frame = stack.pop() || { link: resolved }
 
-        if (frame.template == null) frame.template = frame.link
+        if (frame.template === null) frame.template = frame.link
         frame.fields = frame.fields ?? {}
 
         if (frame.isMixin && !seen.has(frame.template)) {
