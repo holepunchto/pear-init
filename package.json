@@ -8,10 +8,32 @@
   "license": "Apache-2.0",
   "files": [],
   "scripts": {
+    "test": "brittle-bare test.js",
     "format": "prettier --write .",
     "lint": "prettier --check . && lunte"
   },
+  "imports": {
+    "fs": {
+      "bare": "bare-fs",
+      "default": "fs"
+    },
+    "path": {
+      "bare": "bare-path",
+      "default": "path"
+    },
+    "process": {
+      "bare": "bare-process",
+      "default": "process"
+    },
+    "url": {
+      "bare": "bare-url",
+      "default": "url"
+    }
+  },
   "devDependencies": {
+    "bare-fs": "^4.2.0",
+    "bare-process": "^4.2.2",
+    "bare-url": "^2.2.2",
     "brittle": "^3.0.0",
     "lunte": "^1.0.0",
     "pear-ipc": "^6.8.1",

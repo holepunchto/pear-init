@@ -1,0 +1,6 @@
+{
+  "nested": { "b": 3, "c": 4 },
+  "arr": [9],
+  "objArr": [{ "b": 2 }],
+  "fresh": true
+}
