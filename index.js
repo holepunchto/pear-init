@@ -119,6 +119,12 @@ class Init extends Opstream {
     this.push({ tag: 'written' })
   }
 
+  #finalize(frame, trail) {
+    if (frame.template === null) frame.template = frame.link
+    frame.fields = frame.fields ?? {}
+    return [frame.template, { trail: frame.prefixTrail || trail, fields: frame.fields }]
+  }
+
   async *_interact(link, prompt, opts) {
     const stack = [{ link, template: null, prefixTrail: null, fields: null }]
     const seen = new Set()
@@ -159,7 +165,7 @@ class Init extends Opstream {
       if (tag === 'enter' && typeof answer === 'string' && answer.startsWith('/')) {
         const parent = stack[stack.length - 1]
         if (parent.template === null) parent.template = parent.link
-        if (parent.prefixTrail === null) parent.prefixTrail = trail.slice(0, -1) // parent scope
+        if (parent.prefixTrail === null) parent.prefixTrail = trail.slice(0, -1)
         parent.fields = parent.fields ?? {}
 
         if (!seen.has(parent.template)) {
@@ -206,24 +212,32 @@ class Init extends Opstream {
       }
 
       if (tag === 'exit') {
-        const frame =
-          stack.pop() || { link: resolved, template: null, prefixTrail: null, fields: null }
+        const frame = stack.pop() || {
+          link: resolved,
+          template: null,
+          prefixTrail: null,
+          fields: null
+        }
+        const entry = this.#finalize(frame, trail)
 
-        if (frame.template === null) frame.template = frame.link
-        frame.fields = frame.fields ?? {}
-
-        if (frame.isMixin && !seen.has(frame.template)) {
-          seen.add(frame.template)
-          yield [frame.template, { trail: frame.prefixTrail || trail, fields: frame.fields }]
+        if (frame.isMixin && !seen.has(entry[0])) {
+          seen.add(entry[0])
+          yield entry
         }
 
-        if (!frame.isMixin && stack.length === 0 && !seen.has(frame.template)) {
-          seen.add(frame.template)
-          yield [frame.template, { trail: frame.prefixTrail || trail, fields: frame.fields }]
+        if (!frame.isMixin && stack.length === 0 && !seen.has(entry[0])) {
+          seen.add(entry[0])
+          yield entry
         }
 
         continue
       }
+    }
+
+    const root = stack[0]
+    if (root) {
+      const entry = this.#finalize(root, [])
+      if (!seen.has(entry[0])) yield entry
     }
   }
 
