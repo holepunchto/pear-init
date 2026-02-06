@@ -120,7 +120,7 @@ class Init extends Opstream {
   }
 
   async *_interact(link, prompt, opts) {
-    const stack = [{ link }]
+    const stack = [{ link, template: null, prefixTrail: null, fields: null }]
     const seen = new Set()
 
     for await (const evt of prompt.run(opts)) {
@@ -197,13 +197,17 @@ class Init extends Opstream {
       if (tag === 'enter') {
         stack.push({
           link: resolved,
+          template: null,
+          prefixTrail: null,
+          fields: null,
           isMixin: typeof answer === 'string' && answer.startsWith('/')
         })
         continue
       }
 
       if (tag === 'exit') {
-        const frame = stack.pop() || { link: resolved }
+        const frame =
+          stack.pop() || { link: resolved, template: null, prefixTrail: null, fields: null }
 
         if (frame.template === null) frame.template = frame.link
         frame.fields = frame.fields ?? {}

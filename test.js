@@ -3,13 +3,14 @@ const test = require('brittle')
 const fs = require('fs')
 const process = require('process')
 const path = require('path')
-const { fileURLToPath } = require('url')
+const { fileURLToPath, pathToFileURL } = require('url')
 const tmp = require('test-tmp')
 const { Readable } = require('streamx')
 
 const fsp = fs.promises
 const cwd = process.cwd()
 const fixturesDir = path.join(__dirname, 'test', 'fixtures', 'template')
+const mixinsDir = path.join(__dirname, 'test', 'fixtures', 'mixins')
 
 const prevPear = global.Pear
 const IPC = Symbol('IPC')
@@ -84,6 +85,40 @@ test('init merges json and stamps files', async (t) => {
     objArr: [{ a: 1, b: 2 }],
     fresh: true
   })
+})
+
+test('init yields parent template before mixin template', async (t) => {
+  t.teardown(() => {
+    global.Pear = prevPear
+  })
+
+  const root = pathToFileURL(mixinsDir).href
+  const stream = init(root, {
+    dir: mixinsDir,
+    cwd,
+    defaults: {},
+    pkg: {},
+    force: true,
+    header: ''
+  })
+
+  stream.root = root.endsWith('/') ? root : root + '/'
+  stream.base = stream.root
+
+  const prompt = {
+    async *run() {
+      const trail = ['mixins']
+      const answer = '/mixins/test'
+      yield { tag: 'enter', data: { trail, answer } }
+      yield { tag: 'exit', data: { trail, answer } }
+    }
+  }
+
+  const seen = []
+  for await (const entry of stream._interact(stream.root, prompt)) seen.push(entry[0])
+
+  const mixinLink = new URL('mixins/test', stream.root).href
+  t.alike(seen, [stream.root, mixinLink])
 })
 
 function toPath(link) {
