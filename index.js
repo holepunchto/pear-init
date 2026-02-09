@@ -120,6 +120,7 @@ class Init extends Opstream {
   }
 
   #finalize(frame, trail) {
+    if (frame.isMixin && frame.skip) return null
     if (frame.template === null) frame.template = frame.link
     frame.fields = frame.fields ?? {}
     return [frame.template, { trail: frame.prefixTrail || trail, fields: frame.fields }]
@@ -159,6 +160,11 @@ class Init extends Opstream {
         const frame = stack[stack.length - 1]
         frame.template = new URL(rel, base).href
         if (frame.prefixTrail === null) frame.prefixTrail = trail
+        continue
+      }
+      if (tag === 'select' && answer === null) {
+        const frame = stack[stack.length - 1]
+        if (frame.isMixin) frame.skip = true
         continue
       }
 
@@ -220,6 +226,8 @@ class Init extends Opstream {
         }
         const entry = this.#finalize(frame, trail)
 
+        if (entry === null) continue
+
         if (frame.isMixin && !seen.has(entry[0])) {
           seen.add(entry[0])
           yield entry
@@ -237,7 +245,7 @@ class Init extends Opstream {
     const root = stack[0]
     if (root) {
       const entry = this.#finalize(root, [])
-      if (!seen.has(entry[0])) yield entry
+      if (entry && !seen.has(entry[0])) yield entry
     }
   }
 

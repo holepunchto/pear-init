@@ -121,6 +121,42 @@ test('init yields parent template before mixin template', async (t) => {
   t.alike(seen, [stream.root, mixinLink])
 })
 
+test('init skips mixin template when select answer is null', async (t) => {
+  t.teardown(() => {
+    global.Pear = prevPear
+  })
+
+  const root = pathToFileURL(mixinsDir).href
+  const stream = init(root, {
+    dir: mixinsDir,
+    cwd,
+    defaults: {},
+    pkg: {},
+    force: true,
+    header: ''
+  })
+
+  stream.root = root.endsWith('/') ? root : root + '/'
+  stream.base = stream.root
+
+  const prompt = {
+    async *run() {
+      const trail = ['mixins']
+      const answer = '/mixins/test'
+      yield { tag: 'enter', data: { trail, answer } }
+      yield { tag: 'select', data: { trail: trail.concat('test', 'None'), answer: null } }
+      yield { tag: 'exit', data: { trail, answer } }
+    }
+  }
+
+  const seen = []
+  for await (const entry of stream._interact(stream.root, prompt)) seen.push(entry[0])
+
+  const mixinLink = new URL('mixins/test', stream.root).href
+  t.alike(seen, [stream.root])
+  t.absent(seen.includes(mixinLink))
+})
+
 function toPath(link) {
   if (link.startsWith('file://')) return fileURLToPath(link)
   return link
